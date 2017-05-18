@@ -2,3 +2,22 @@ A defintion from www.informatica.com
 
 Datawarehouse: A technology that aggregates data from one or more sources 
 so that it can be compared and analyzed for great business intelligence.
+
+
+a) Long running batch jobs
+b) Optimized for read operations
+c) Holds data from multiple sources
+d) Holds data over a long period of time
+e) Data may be lagged, not real time
+
+Ex of DWH tools:
+Vertica
+Teradata
+Oracle
+IBM
+
+Apache Hive is an opensource Datawarehouse tool
+Hive is part of the larger Hadoop ecosystem
+
+Hive runs on top of the Hadoop distributed computing framework.
+Hive stores its data in HDFS
