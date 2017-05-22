@@ -1,0 +1,67 @@
+Data For Task
+---------------------------------
+Amit|Jain|A-646, Cheru Nagar, Chennai|999999999|98989898|600020
+Sumit|Saxena|D-100, Connaught Place, Delhi|1111111111|82828282|110001
+Ajit|Chaube|M-101, Dwarka puri, Jaipur|2222222222|32323232|302016
+Ramu|Mishra|P-101,Ahiyapur, Patna|4444444444|12121212|801108
+
+----------------------------------------------------
+
+create database :
+
+Create database if not exists Patientinfo;
+
+------------------------------------------------
+
+create table if not exists patientdetail
+(
+
+name struct<Firstname:string, Lastname:string>,
+address struct<Houseno:string, localityname:string, city:string, zip:string>,
+phone struct<mobile:string, landline:string>
+)
+row format delimited fields terminated by '|'
+COLLECTION ITEMS TERMINATED BY '#'
+stored as sequencefile
+location '/user/hive/warehouse/patient'
+
+
+create table tmppatient(data string);
+
+select split(data, '\\|')[0] firstname, 
+split(data, '\\|')[1] lastname,
+split(data, '\\|')[2] address,
+split(data, '\\|')[3] mobile,
+split(data, '\\|')[4] phone,
+split(data, '\\|')[5] zipcode
+from tmppatient;
+
+insert overwrite table patientdetail
+select named_struct("Firstname",split(data, '\\|')[0], "Lastname", split(data, '\\|')[1]),
+named_struct("Houseno" , split(split(data, '\\|')[2],',')[0],"localityname", split(split(data, '\\|')[2],',')[1], "city", split(split(data, '\\|')[2],',')[2], "zip", split(data, '\\|')[5]),
+named_struct("mobile", split(data, '\\|')[3], "landline" ,split(data, '\\|')[4])  from tmppatient
+
+
+
+create external table if not exists pd
+(
+name struct<Firstname:string, Lastname:string>,
+address struct<Houseno:string, localityname:string, city:string, zip:string>,
+phone struct<mobile:string, landline:string>
+)
+row format delimited fields terminated by '|'
+COLLECTION ITEMS TERMINATED BY '#'
+stored as sequencefile
+location '/user/hive/warehouse/patient'
+
+
+select struct("Firstname",split(data, '\\|')[0], "Lastname", split(data, '\\|')[1]),
+struct("Houseno" , split(split(data, '\\|')[2],',')[0],"localityname", split(split(data, '\\|')[2],',')[1], "city", split(split(data, '\\|')[2],',')[2], "zip", split(data, '\\|')[5]),
+struct("mobile", split(data, '\\|')[3], "landline" ,split(data, '\\|')[4])  from tmppatient
+
+
+
+insert overwrite table test
+select struct(split(data, '\\|')[0], split(data, '\\|')[1]),
+struct(split(split(data, '\\|')[2],',')[0], split(split(data, '\\|')[2],',')[1], split(split(data, '\\|')[2],',')[2], split(data, '\\|')[5]),
+struct(split(data, '\\|')[3], split(data, '\\|')[4])  from tmppatient
